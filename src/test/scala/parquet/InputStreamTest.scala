@@ -9,7 +9,7 @@ import parquet.io.SeekableInputStreamBuilder
 
 class InputStreamTest extends FunSuite with BeforeAndAfterAll{
 
-  var stream: SeekableInputStream = _
+  var stream: SeekableInputStreamBuilder = _
 
   override def beforeAll(): Unit = {
     super.beforeAll()
@@ -34,6 +34,8 @@ class InputStreamTest extends FunSuite with BeforeAndAfterAll{
 
   test("test size"){
     // size is 26
+    assert(stream.getLength==26)
+
     assertThrows[EOFException]{
       stream.seek(25)
       stream.read()

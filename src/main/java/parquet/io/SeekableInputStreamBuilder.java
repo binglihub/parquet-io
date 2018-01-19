@@ -98,4 +98,8 @@ public class SeekableInputStreamBuilder extends SeekableInputStream{
         // nothing to close
     }
 
+    public int getLength(){
+        return count;
+    }
+
 }
