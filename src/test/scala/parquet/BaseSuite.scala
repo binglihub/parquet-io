@@ -29,31 +29,31 @@ class BaseSuite extends FunSuite with BeforeAndAfterAll{
 
 
 
-  test("Test row to file"){
-    val rdd: RDD[Row] = sc.parallelize(
-      Seq(
-        Row("one", 1, 2.2),
-        Row("two", 3, 4.4)
-      )
-    )
-
-    val schema = StructType(Seq(
-      StructField(name = "name", dataType = StringType, nullable = false),
-      StructField(name = "val1", dataType = IntegerType, nullable = false),
-      StructField(name = "val2", dataType = DoubleType, nullable = false)
-    ))
-
-    val df = spark.createDataFrame(rdd, schema)
-
-    df.show()
-
-    df.write.parquet("data")
-
-//    val newDF = sqlContext.read.parquet("data")
+//  test("Test row to file"){
+//    val rdd: RDD[Row] = sc.parallelize(
+//      Seq(
+//        Row("one", 1, 2.2),
+//        Row("two", 3, 4.4)
+//      )
+//    )
 //
-//    newDF.show()
-
-
-  }
+//    val schema = StructType(Seq(
+//      StructField(name = "name", dataType = StringType, nullable = false),
+//      StructField(name = "val1", dataType = IntegerType, nullable = false),
+//      StructField(name = "val2", dataType = DoubleType, nullable = false)
+//    ))
+//
+//    val df = spark.createDataFrame(rdd, schema)
+//
+//    df.show()
+//
+//    df.write.parquet("data")
+//
+////    val newDF = sqlContext.read.parquet("data")
+////
+////    newDF.show()
+//
+//
+//  }
 
 }
