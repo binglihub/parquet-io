@@ -47,11 +47,11 @@ class BaseSuite extends FunSuite with BeforeAndAfterAll{
 
     df.show()
 
-    //df.write.parquet("parquet")
+    df.write.parquet("data")
 
-    val newDF = sqlContext.read.parquet("data")
-
-    newDF.show()
+//    val newDF = sqlContext.read.parquet("data")
+//
+//    newDF.show()
 
 
   }

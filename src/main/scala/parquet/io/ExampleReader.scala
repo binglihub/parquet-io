@@ -9,7 +9,7 @@ import org.apache.parquet.column.page.PageReadStore
 import org.apache.parquet.example.data.Group
 import org.apache.parquet.example.data.simple.convert.GroupRecordConverter
 import org.apache.parquet.format.converter.ParquetMetadataConverter
-import org.apache.parquet.hadoop.ParquetFileReader
+import org.apache.parquet.hadoop.ParquetStreamReader
 import org.apache.parquet.hadoop.metadata.ParquetMetadata
 import org.apache.parquet.io.{ColumnIOFactory, MessageColumnIO, RecordReader}
 import org.apache.parquet.schema.{MessageType, Type}
@@ -17,7 +17,7 @@ import org.apache.parquet.schema.{MessageType, Type}
 
 object ExampleReader {
 
-  val path: Path = new Path("parquet/input.parquet")
+  val path: Path = new Path("data/input.parquet")
 
   def printGroup(group: Group): Unit = {
     val fieldCount: Int = group.getType.getFieldCount
@@ -39,9 +39,9 @@ object ExampleReader {
   def main(args:Array[String]):Unit={
     val conf = new Configuration()
     try{
-      val readFooter: ParquetMetadata = ParquetFileReader.readFooter(conf, path, ParquetMetadataConverter.NO_FILTER)
+      val readFooter: ParquetMetadata = ParquetStreamReader.readFooter(conf, path, ParquetMetadataConverter.NO_FILTER)
       val schema: MessageType = readFooter.getFileMetaData.getSchema
-      val reader = new ParquetFileReader(conf, path, readFooter)
+      val reader = new ParquetStreamReader(conf, path, readFooter)
 
       var pages:PageReadStore = reader.readNextRowGroup()
 
