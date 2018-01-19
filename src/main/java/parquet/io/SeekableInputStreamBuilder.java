@@ -6,22 +6,40 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 
+/**
+ * Convert an {@link InputStream} object to {@link SeekableInputStream}
+ */
 public class SeekableInputStreamBuilder extends SeekableInputStream{
 
-    private InputStream input;
+    // large data may crash this system. try to use file less than 1G
+    private ArrayList<Byte> data;
 
-    private long pos;
+    private int pos;
 
     private long mark = 0;
 
     private int count;
 
+    /**
+     * Create a new {@link SeekableInputStream} by caching all input data
+     * @param input an {@link InputStream} contains all data
+     * @throws IOException is an I/O error occurs
+     */
     public SeekableInputStreamBuilder(InputStream input) throws IOException {
-        this.input = input;
-        this.input.reset();
+
+        // input.available may not be the real size of input stream,
+        // only use this value to initialize the ArrayList.
+        // Do not use data large than 1G due to the size limitation of List.
+        data = new ArrayList<>(input.available());
+        int c;
+        while((c=input.read())!=-1){
+            data.add((byte)c);
+        }
+        input.close();
         this.pos = 0;
-        this.count = input.available();
+        this.count = data.size();
     }
 
     @Override
@@ -32,7 +50,7 @@ public class SeekableInputStreamBuilder extends SeekableInputStream{
     @Override
     public void seek(long newPos) throws IOException {
         if(newPos<0 || newPos>=count) throw new IOException("incorrect seek position: "+newPos);
-        pos = newPos;
+        pos = (int) newPos;
     }
 
     @Override
@@ -42,32 +60,13 @@ public class SeekableInputStreamBuilder extends SeekableInputStream{
 
     @Override
     public void readFully(byte[] bytes, int start, int len) throws IOException {
-        if(start+len>bytes.length) throw new IOException("Array out of bound. size of array: "
-                + bytes.length+" start: "+start+" len: "+len);
-        if(pos+len>count) throw new EOFException("Stream size: "+count+" pos: "+pos
-                + " len: "+len);
-        input.reset();
-        input.skip(pos);
-        for (int i = 0; i < len; i++) {
-            bytes[start+i] = (byte)input.read();
-            pos++;
-        }
+        read(bytes,start,len);
     }
 
     @Override
     public int read(ByteBuffer buf) throws IOException {
-        input.reset();
-        input.skip(pos);
-        int c = input.read();
-        if(c == -1) return -1;
-        buf.put((byte)c);
-        pos++;
-        int size = 1;
-        while(pos<count){
-            buf.put((byte)input.read());
-            pos++;
-            size++;
-        }
+        int size = count-pos;
+        while(pos<count) buf.put(data.get(pos++));
         return size;
     }
 
@@ -78,25 +77,25 @@ public class SeekableInputStreamBuilder extends SeekableInputStream{
 
     @Override
     public int read() throws IOException {
-        input.reset();
-        input.skip(pos);
-        int result = input.read();
-        pos++;
-        return result;
+        if(pos==count) throw new EOFException("size: "+count+" pos: "+pos);
+        return (int) data.get(pos++);
     }
 
     @Override
     public int read(byte[] b, int off, int len) throws IOException{
-        input.reset();
-        input.skip(pos);
-        int result = input.read(b,off,len);
-        pos+=len;
-        return result;
+        if(off+len>b.length) throw new IOException("Array out of bound. size of array: "
+                + b.length+" start: "+off+" len: "+len);
+        if(pos+len>count) throw new EOFException("Stream size: "+count+" pos: "+pos
+                + " len: "+len);
+        for (int i = 0; i < len; i++) {
+            b[off+i]=data.get(pos++);
+        }
+        return len;
     }
 
     @Override
     public void close() throws IOException {
-        input.close();
+        // nothing to close
     }
 
 }
