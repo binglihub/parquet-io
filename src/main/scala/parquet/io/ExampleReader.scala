@@ -1,7 +1,7 @@
 package parquet.io
 
 
-import java.io.IOException
+import java.io.{File, FileInputStream, IOException, InputStream}
 
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.Path
@@ -17,7 +17,9 @@ import org.apache.parquet.schema.{MessageType, Type}
 
 object ExampleReader {
 
-  val path: Path = new Path("data/input.parquet")
+  val str = "data/input.parquet"
+  val path: Path = new Path(str)
+
 
   def printGroup(group: Group): Unit = {
     val fieldCount: Int = group.getType.getFieldCount
@@ -39,7 +41,8 @@ object ExampleReader {
   def main(args:Array[String]):Unit={
     val conf = new Configuration()
     try{
-      val readFooter: ParquetMetadata = ParquetStreamReader.readFooter(conf, path, ParquetMetadataConverter.NO_FILTER)
+      val input: InputStream = new FileInputStream(new File(str))
+      val readFooter: ParquetMetadata = ParquetStreamReader.readFooter(input, ParquetMetadataConverter.NO_FILTER)
       val schema: MessageType = readFooter.getFileMetaData.getSchema
       val reader = new ParquetStreamReader(conf, path, readFooter)
 

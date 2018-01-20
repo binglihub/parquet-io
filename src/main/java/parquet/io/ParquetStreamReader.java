@@ -19,13 +19,16 @@
 package org.apache.parquet.hadoop;
 
 
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 
 import org.apache.parquet.format.converter.ParquetMetadataConverter.MetadataFilter;
 import org.apache.parquet.hadoop.metadata.ParquetMetadata;
-import org.apache.parquet.hadoop.util.HadoopInputFile;
+import parquet.io.FileFromStream;
 
 /**
  * Internal implementation of the Parquet file reader as a block container
@@ -48,14 +51,13 @@ public class ParquetStreamReader extends ParquetFileReader {
     /**
      * Reads the meta data in the footer of the file.
      * Skipping row groups (or not) based on the provided filter
-     * @param configuration
-     * @param file the Parquet File
+     * @param input the Parquet File stream
      * @param filter the filter to apply to row groups
      * @return the metadata with row groups filtered.
      * @throws IOException  if an error occurs while reading the file
      */
-    public static ParquetMetadata readFooter(Configuration configuration, Path file, MetadataFilter filter) throws IOException {
-        return readFooter(HadoopInputFile.fromPath(file, configuration), filter);
+    public static ParquetMetadata readFooter(InputStream input, MetadataFilter filter) throws IOException {
+        return readFooter(new FileFromStream(input), filter);
     }
 
 
