@@ -61,12 +61,11 @@ public class ParquetStreamReader {
      * Reads the meta data in the footer of the file.
      * Skipping row groups (or not) based on the provided filter
      * @param input the Parquet File stream
-     * @param filter the filter to apply to row groups
      * @return the metadata with row groups filtered.
      * @throws IOException  if an error occurs while reading the file
      */
-    public static ParquetMetadata readFooter(InputStream input, MetadataFilter filter) throws IOException {
-        return readFooter(new FileFromStream(input), filter);
+    public static ParquetMetadata readFooter(InputFile input) throws IOException {
+        return readFooter(input, ParquetMetadataConverter.NO_FILTER);
     }
 
     /**
@@ -78,16 +77,7 @@ public class ParquetStreamReader {
      */
     public static final ParquetMetadata readFooter(
             InputFile file, MetadataFilter filter) throws IOException {
-        ParquetMetadataConverter converter;
-        // TODO: remove this temporary work-around.
-        // this is necessary to pass the Configuration to ParquetMetadataConverter
-        // and should be removed when there is a non-Hadoop configuration.
-        if (file instanceof HadoopInputFile) {
-            converter = new ParquetMetadataConverter(
-                    ((HadoopInputFile) file).getConfiguration());
-        } else {
-            converter = new ParquetMetadataConverter();
-        }
+        ParquetMetadataConverter converter = new ParquetMetadataConverter();
         SeekableInputStream in = file.newStream();
         try {
             return readFooter(converter, file.getLength(), file.toString(), in, filter);
@@ -138,9 +128,9 @@ public class ParquetStreamReader {
      * @param footer a {@link ParquetMetadata} footer already read from the file
      * @throws IOException if the file can not be opened
      */
-    public ParquetStreamReader(InputStream input, ParquetMetadata footer) throws IOException {
+    public ParquetStreamReader(InputFile input, ParquetMetadata footer) throws IOException {
         this.converter = new ParquetMetadataConverter();
-        this.f = new FileFromStream(input).newStream();
+        this.f = input.newStream();
         this.footer = footer;
         this.fileMetaData = footer.getFileMetaData();
         this.blocks = footer.getBlocks();

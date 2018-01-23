@@ -9,13 +9,13 @@ import org.apache.parquet.example.data.simple.convert.GroupRecordConverter
 import org.apache.parquet.format.converter.ParquetMetadataConverter
 import org.apache.parquet.hadoop.ParquetStreamReader
 import org.apache.parquet.hadoop.metadata.ParquetMetadata
-import org.apache.parquet.io.{ColumnIOFactory, MessageColumnIO, RecordReader}
+import org.apache.parquet.io.{ColumnIOFactory, InputFile, MessageColumnIO, RecordReader}
 import org.apache.parquet.schema.{MessageType, Type}
 
 
 object ExampleReader {
 
-  val str = "data/input.parquet"
+  val str = "data/bbb.parquet"
 
 
   def printGroup(group: Group): Unit = {
@@ -37,10 +37,10 @@ object ExampleReader {
 
   def main(args:Array[String]):Unit={
     try{
-//      val input: InputStream = new FileInputStream(new File(str))
-      val readFooter: ParquetMetadata = ParquetStreamReader.readFooter(new FileInputStream(new File(str)), ParquetMetadataConverter.NO_FILTER)
+      val input: InputFile = new FileFromStream(new FileInputStream(str));
+      val readFooter: ParquetMetadata = ParquetStreamReader.readFooter(input)
       val schema: MessageType = readFooter.getFileMetaData.getSchema
-      val reader = new ParquetStreamReader(new FileInputStream(new File(str)), readFooter)
+      val reader = new ParquetStreamReader(input, readFooter)
 
       var pages:PageReadStore = reader.readNextRowGroup()
 
