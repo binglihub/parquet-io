@@ -27,6 +27,15 @@ class BaseSuite extends FunSuite with BeforeAndAfterAll{
     super.afterAll()
   }
 
+  test("Snappy"){
+    val str = "abcdefghijklmnopqrstuvwxyz"
+
+    println(s"Input: $str")
+
+
+
+  }
+
 
 
 //  test("Test row to file"){

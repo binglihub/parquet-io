@@ -10,3 +10,4 @@ libraryDependencies += "org.scalactic" %% "scalactic" % "3.0.4"
 
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.4" % "test"
 
+libraryDependencies += "org.xerial.snappy" % "snappy-java" % "1.1.7"
