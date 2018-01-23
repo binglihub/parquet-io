@@ -78,7 +78,7 @@ public class SeekableInputStreamBuilder extends SeekableInputStream{
     @Override
     public int read() throws IOException {
         if(pos==count) throw new EOFException("size: "+count+" pos: "+pos);
-        return (int) data.get(pos++);
+        return (data.get(pos++).intValue()+256)%256;
     }
 
     @Override
