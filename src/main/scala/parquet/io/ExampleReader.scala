@@ -3,8 +3,10 @@ package parquet.io
 
 import java.io.{File, FileInputStream, IOException, InputStream}
 
+import apple.laf.JRSUIConstants.BooleanValue
 import org.apache.parquet.column.page.PageReadStore
 import org.apache.parquet.example.data.Group
+import org.apache.parquet.example.data.simple._
 import org.apache.parquet.example.data.simple.convert.GroupRecordConverter
 import org.apache.parquet.format.converter.ParquetMetadataConverter
 import org.apache.parquet.hadoop.ParquetStreamReader
@@ -15,7 +17,7 @@ import org.apache.parquet.schema.{MessageType, Type}
 
 object ExampleReader {
 
-  val str = "data/bbb.parquet"
+  val str = "data/aaa.parquet"
 
 
   def printGroup(group: Group): Unit = {
@@ -28,7 +30,20 @@ object ExampleReader {
 
       (0 until valueCount).foreach(index=>{
         if(fieldType.isPrimitive){
-          println(s"$fieldName ${group.getValueToString(field, index)}")
+//          println(s"$field $index")
+          var value:String = ""
+          try{
+            val b = group.getBinary(field, index)
+            val arr = b.getBytes
+            if(arr.length<=4){
+              value = arr.foldLeft(0){
+                case(total, current)=> (total<<8)+((current.toInt+256)%256)
+              }.toString
+            }
+          } catch{
+            case _ : Throwable => value = group.getValueToString(field, index)
+          }
+          println(s"$fieldName $value")
         }
       })
     })
